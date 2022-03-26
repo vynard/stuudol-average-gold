@@ -43,23 +43,27 @@ db.create_all()
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == "POST":
-        submission = request.form
-        
-        fn = submission['fname']
-        ln = submission['lname']
-        un = submission['uname']
-        eMail = submission['email']
-        pNumber = submission['pnumber']
-        password = submission['password']
-        
-        userCreation = User(username=un, lastname=ln, firstname=fn, email=eMail, phonenumber=pNumber, password=password)
-        classCreation = Classes(table_created = 'true')
-        
-        db.session.add(userCreation)
-        db.session.add(classCreation)
-        db.session.commit()
+        if 'login-button' in request.form:
+            return redirect('/login')
+    
+        elif 'register-button' in request.form:
+            submission = request.form
+            
+            fn = submission['fname']
+            ln = submission['lname']
+            un = submission['uname']
+            eMail = submission['email']
+            pNumber = submission['pnumber']
+            password = submission['password']
+            
+            userCreation = User(username=un, lastname=ln, firstname=fn, email=eMail, phonenumber=pNumber, password=password)
+            classCreation = Classes(table_created = 'true')
+            
+            db.session.add(userCreation)
+            db.session.add(classCreation)
+            db.session.commit()
 
-        return redirect('/login')
+            return redirect('/login')
         
     return render_template('register_page.html')
 
@@ -68,14 +72,18 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == "POST":
-        submission = request.form
-        
-        eMail_input = submission['email']
-        password_input = submission['password']
-        user = User.query.filter_by(email=eMail_input).first()
-        if user:
-            if user.password == password_input:
-                return 'success'
+        if 'register-button' in request.form:
+            return redirect('/')
+
+        elif 'login-button' in request.form:
+            submission = request.form
+            
+            eMail_input = submission['email']
+            password_input = submission['password']
+            user = User.query.filter_by(email=eMail_input).first()
+            if user:
+                if user.password == password_input:
+                    return 'success'
     
     return render_template('login_page.html')
 
