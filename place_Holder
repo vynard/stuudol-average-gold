@@ -1,30 +1,38 @@
 from flask import *
-from flask_mysqldb import MySQL
-from click import *
+import sqlite3
 
-app = Flask(__name__)
-app.config['MYSQL_HOST'] = 'localhost'
-app.config['MYSQL_USER'] = 'root'
-app.config['MYSQL_PASSWORD'] = ''
-app.config['MYSQL_DB'] = 'userdata'
+db_location = '/database/userdata.db'
 
-mysql = MySQL(app)
+def get_db():
+    db = getattr(g, '_database', None)
+    if db is None:
+        db = g._database = sqlite3.connect(db_location)
+    return db
 
+#@app.teardown_appcontext
+def close_connection(exception):
+    db = getattr(g, '_database', None)
+    if db is not None:
+        db.close()
 
 @app.route('/', methods=['GET', 'POST'])
 def index():
+    db = get_db()
     if request.method == "POST":
         submission = request.form
+
         firstName = submission['fname']
         lastName = submission['lname']
         userName = submission['uname']
         eMail = submission['email']
         pNumber = submission['pnumber']
         firstClass = submission['class1']
-        cur = mysql.connection.cursor()
+        cur = db.cursor()
+
         cur.execute("INSERT INTO users(first_name, last_name, user_name, email, phone_number) VALUES (%s, %s, %s, %s, %s)", (firstName, lastName, userName, eMail, pNumber))
-        mysql.connection.commit()
+        db.commit()
         cur.close()
+        db.close()
         return 'success'
     return render_template('backbone.html')
 
