@@ -16,10 +16,11 @@ class User(db.Model):
     lastname = db.Column(db.String(20), unique=False, nullable=False)
     username = db.Column(db.String(20), unique=True, nullable=False)
     email = db.Column(db.String(120), unique=True, nullable=False)
-    phonenumber = db.Column(db.String(14), unique=True, nullable=False)
+    phonenumber = db.Column(db.String(14), unique=True, nullable=True)
+    password = db.Column(db.String(120), unique=False, nullable=False)
 
     def __repr__(self):
-        return f"User({self.firstname}',{self.lastname}','{self.username}',{self.pnumber}', '{self.email}')"
+        return f"User({self.firstname}',{self.lastname}','{self.username}',{self.pnumber}', '{self.email}', '{self.password}')"
 
 class Classes(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -30,6 +31,7 @@ class Classes(db.Model):
     course5 = db.Column(db.String(9), unique=False, nullable=True)
     course6 = db.Column(db.String(9), unique=False, nullable=True)
     course7 = db.Column(db.String(9), unique=False, nullable=True)
+    table_created = db.Column(db.String(5), unique=False, nullable=False)
     
     def __repr__(self):
         return f"Classes({self.course1}',{self.course2}','{self.course3}',{self.course4}', '{self.course5}',{self.course6}',{self.course7})"
@@ -41,19 +43,19 @@ def index():
     if request.method == "POST":
         submission = request.form
         fn = submission['fname']
-        ln= submission['lname']
+        ln = submission['lname']
         un = submission['uname']
         eMail = submission['email']
         pNumber = submission['pnumber']
-        course1 = submission['class1']
-        userCreation = User( username=un,lastname=ln,firstname=fn,email= eMail,phonenumber=pNumber)
-        classCreation = Classes(course1=course1)
+        password = submission['password']
+        userCreation = User(username=un, lastname=ln, firstname=fn, email=eMail, phonenumber=pNumber, password=password)
+        classCreation = Classes(table_created = 'true')
         db.session.add(userCreation)
         db.session.add(classCreation)
         db.session.commit()
 
         return 'success'
-    return render_template('backbone.html')
+    return render_template('register_page.html')
 
 if __name__ == '__main__':
     app.run()
