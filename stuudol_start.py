@@ -12,7 +12,7 @@ class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     firstname = db.Column(db.String(20), unique=False, nullable=False)
     lastname = db.Column(db.String(20), unique=False, nullable=False)
-    username = db.Column(db.String(20), unique=True, nullable=False)
+    username = db.Column(db.String(20), unique=True, nullable=True)
     email = db.Column(db.String(120), unique=True, nullable=False)
     phonenumber = db.Column(db.String(14), unique=True, nullable=True)
     password = db.Column(db.String(120), unique=False, nullable=False)
@@ -43,20 +43,20 @@ db.create_all()
 @app.route('/', methods=['GET', 'POST'])
 def index():
     if request.method == "POST":
-        if 'login-button' in request.form:
+        if 'already' in request.form:
             return redirect('/login')
     
-        elif 'register-button' in request.form:
+        elif 'register_button' in request.form:
             submission = request.form
             
             fn = submission['fname']
             ln = submission['lname']
-            un = submission['uname']
+            #un = submission['uname']
             eMail = submission['email']
             pNumber = submission['pnumber']
             password = submission['password']
             
-            userCreation = User(username=un, lastname=ln, firstname=fn, email=eMail, phonenumber=pNumber, password=password)
+            userCreation = User(lastname=ln, firstname=fn, email=eMail, phonenumber=pNumber, password=password)
             classCreation = Classes(table_created = 'true')
             
             db.session.add(userCreation)
@@ -65,7 +65,7 @@ def index():
 
             return redirect('/login')
         
-    return render_template('register_page.html')
+    return render_template('index.html')
 
 
 
