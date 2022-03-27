@@ -1,15 +1,20 @@
 from asyncio.windows_events import NULL
 from flask import *
 from flask_sqlalchemy import SQLAlchemy
+from flask_login import *
 app = Flask(__name__)
 
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['SQLALCHEMY_DATABASE_URI']= 'sqlite:///userdata.db'
 db=SQLAlchemy(app)
-#login_manager = LoginManager()
+login_manager = LoginManager()
+login_manager.init_app(app)
 
-class User(db.Model):
+class User(UserMixin, db.Model):
+    hello = "hi" #place holder code so no errors are created
+
+class Memeber(db.Model):
     id = db.Column(db.Integer, primary_key=True)
     firstname = db.Column(db.String(20), unique=False, nullable=False)
     lastname = db.Column(db.String(20), unique=False, nullable=False)
@@ -52,7 +57,7 @@ def register():
         pNumber = submission['pnumber']
         password = submission['password']
             
-        userCreation = User(username = un, lastname=ln, firstname=fn, email=eMail, phonenumber=pNumber, password=password)
+        userCreation = Memeber(username = un, lastname=ln, firstname=fn, email=eMail, phonenumber=pNumber, password=password)
         classCreation = Classes(table_created = 'true')
             
         db.session.add(userCreation)
@@ -72,7 +77,7 @@ def login():
             
         eMail_input = submission['email']
         password_input = submission['password']
-        user = User.query.filter_by(email=eMail_input).first()
+        user = Memeber.query.filter_by(email=eMail_input).first()
         if user:
             if user.password == password_input:
                 return 'success'
