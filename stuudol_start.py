@@ -1,12 +1,13 @@
 from asyncio.windows_events import NULL
 from flask import *
 from flask_sqlalchemy import SQLAlchemy
-from flask_login import *
+from flask_login import LoginManager, UserMixin, current_user, login_required, login_user, logout_user
 app = Flask(__name__)
 
 
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['SQLALCHEMY_DATABASE_URI']= 'sqlite:///userdata.db'
+app.config['SECRET_KEY'] = 'stuudol'
 db=SQLAlchemy(app)
 login_manager = LoginManager()
 login_manager.init_app(app)
@@ -39,9 +40,14 @@ class Classes(db.Model):
     def __repr__(self):
         return f"Classes({self.course1}',{self.course2}','{self.course3}',{self.course4}', '{self.course5}',{self.course6}',{self.course7})"
 
-
-
 db.create_all()
+
+
+@login_manager.user_loader
+def load_user(user_id):
+    return User.query.get(int(user_id))
+
+
 @app.route('/register', methods=['GET', 'POST'])
 def register():
     if request.method == "POST":    
@@ -61,13 +67,13 @@ def register():
         db.session.add(classCreation)
         db.session.commit()
 
-        return redirect('/login')
+        return redirect('/')
         
     return render_template('register_page.html')
 
 
 
-@app.route('/login', methods=['GET', 'POST'])
+@app.route('/', methods=['GET', 'POST'])
 def login():
     if request.method == "POST":
         submission = request.form
@@ -77,16 +83,24 @@ def login():
         user = User.query.filter_by(email=eMail_input).first()
         if user:
             if user.password == password_input:
-                return 'success'
+                login_user(user)
+                return redirect('/home')
     return render_template('login_page.html')
 
 
 
-@app.route('/', methods=['GET', 'POST'])
+@app.route('/home', methods=['GET', 'POST'])
+@login_required
 def main():
 
 
-    return render_template('main_page.html')
+    return 'the current user is: ' + current_user.username
+
+@app.route('/logout', methods=['GET', 'POST'])
+@login_required
+def logout():
+    logout_user()
+    return 'logged out'
 
 if __name__ == '__main__':
     app.run()
