@@ -7,6 +7,7 @@ app = Flask(__name__)
 app.config['MYSQL_HOST'] = 'localhost'
 app.config['SQLALCHEMY_DATABASE_URI']= 'sqlite:///userdata.db'
 db=SQLAlchemy(app)
+#login_manager = LoginManager()
 
 class User(db.Model):
     id = db.Column(db.Integer, primary_key=True)
@@ -39,9 +40,8 @@ class Classes(db.Model):
 
 
 db.create_all()
-#print(db.select([User.password]).where(User.email == 'a'))
-@app.route('/', methods=['GET', 'POST'])
-def index():
+@app.route('/register', methods=['GET', 'POST'])
+def register():
     if request.method == "POST":    
         submission = request.form
             
@@ -68,21 +68,23 @@ def index():
 @app.route('/login', methods=['GET', 'POST'])
 def login():
     if request.method == "POST":
-        if 'register-button' in request.form:
-            return redirect('/')
-
-        elif 'login-button' in request.form:
-            submission = request.form
+        submission = request.form
             
-            eMail_input = submission['email']
-            password_input = submission['password']
-            user = User.query.filter_by(email=eMail_input).first()
-            if user:
-                if user.password == password_input:
-                    return 'success'
-    
+        eMail_input = submission['email']
+        password_input = submission['password']
+        user = User.query.filter_by(email=eMail_input).first()
+        if user:
+            if user.password == password_input:
+                return 'success'
     return render_template('login_page.html')
 
+
+
+@app.route('/', methods=['GET', 'POST'])
+def main():
+
+
+    return render_template('main_page.html')
 
 if __name__ == '__main__':
     app.run()
